@@ -20,7 +20,7 @@ public class University {
 
     public Student addStudent(String firstName, String lastName, int index) {
         Student student = new Student(firstName, lastName, index, MAX_CLASSES_AMOUNT);
-        for(int i = 0; i < students.length; i++) {
+        for (int i = 0; i < students.length; i++) {
             if (students[i] == null) {
                 students[i] = student;
                 return student;
@@ -66,7 +66,7 @@ public class University {
     private boolean isStudentInGroup(Group group, int index) {
         Student[] students = group.getStudents();
         for (int i = 0; i < students.length; i++) {
-            if(students[i] != null && students[i].getIndex() == index) {
+            if (students[i] != null && students[i].getIndex() == index) {
                 return true;
             }
         }
