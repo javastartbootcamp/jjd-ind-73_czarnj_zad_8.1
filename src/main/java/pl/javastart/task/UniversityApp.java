@@ -171,7 +171,7 @@ public class UniversityApp {
         if (group != null) {
             Student[] students = group.getStudents();
             StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i <students.length; i++) {
+            for (int i = 0; i < students.length; i++) {
                 if (students[i] != null) {
                     Grade grade = university.findGradeForStudent(students[i], groupCode);
                     if (grade != null) {
