@@ -5,94 +5,65 @@ import pl.javastart.task.models.Group;
 import pl.javastart.task.models.Lecturer;
 import pl.javastart.task.models.Student;
 
+import java.util.Locale;
+
 public class University {
-    private static final int MAX_STUDENTS_AMOUNT_IN_GROUP = 15;
-    private static final int MAX_CLASSES_AMOUNT = 15;
     private Student[] students;
     private Lecturer[] lecturers;
     private Group[] groups;
+    private Grade[] grades;
+    private int studentCounter;
+    private int lecturerCounter;
+    private int groupCounter;
+    private int gradeCounter;
+    private StringBuilder stringBuilder = new StringBuilder();
 
     public University(int maxStudentsAmount, int maxLecturersAmount, int maxGroupsAmount) {
         this.students = new Student[maxStudentsAmount];
         this.lecturers = new Lecturer[maxLecturersAmount];
         this.groups = new Group[maxGroupsAmount];
+        this.grades = new Grade[maxStudentsAmount * maxGroupsAmount];
     }
 
-    public Student addStudent(String firstName, String lastName, int index) {
-        Student student = new Student(firstName, lastName, index, MAX_CLASSES_AMOUNT);
-        for (int i = 0; i < students.length; i++) {
-            if (students[i] == null) {
-                students[i] = student;
-                return student;
-            }
+    public void addStudent(Student student) {
+        if (studentCounter < students.length) {
+            students[studentCounter++] = student;
         }
-        return null;
     }
 
-    public Lecturer addLecturer(String firstName, String lastName, int id, String degree) {
-        Lecturer lecturer = new Lecturer(firstName, lastName, id, degree);
-        for (int i = 0; i < lecturers.length; i++) {
-            if (lecturers[i] == null) {
-                lecturers[i] = lecturer;
-                return lecturer;
-            }
+    public void addLecturer(Lecturer lecturer) {
+        if (lecturerCounter < lecturers.length) {
+            lecturers[lecturerCounter++] = lecturer;
         }
-        return null;
     }
 
-    public Group addGroup(String code, String name, Lecturer lecturer) {
-        Group group = new Group(code, name, lecturer, MAX_STUDENTS_AMOUNT_IN_GROUP);
-        for (int i = 0; i < groups.length; i++) {
-            if (groups[i] == null) {
-                groups[i] = group;
-                return group;
-            }
+    public void addGroup(Group group) {
+        if (groupCounter < groups.length) {
+            groups[groupCounter++] = group;
         }
-        return null;
     }
 
-    public void addStudentToGroup(String firstName, String lastName, int index, Group group) {
-        Student student = findStudent(index);
-        if (student == null) {
-            student = addStudent(firstName, lastName, index);
-            group.addStudent(student);
-        } else if (isStudentInGroup(group, index)) {
-            System.out.printf("Student o indeksie %d jest już w grupie %s%n", index, group.getCode());
+    public void addGrade(Grade grade) {
+        if (!doesGradeExist(grade) && gradeCounter < grades.length) {
+            grades[gradeCounter++] = grade;
+        }
+    }
+
+    public void addStudentToGroup(Student student, Group group) {
+        if (group.containStudent(student)) {
+            System.out.printf("Student o indeksie %d jest już w grupie %s%n", student.getIndex(),
+                    group.getCode());
         } else {
             group.addStudent(student);
         }
     }
 
-    private boolean isStudentInGroup(Group group, int index) {
-        Student[] students = group.getStudents();
-        for (int i = 0; i < students.length; i++) {
-            if (students[i] != null && students[i].getIndex() == index) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void addGrade(Student student, Group group, double value) {
-        Grade[] grades = student.getGrades();
-        if (!doesGradeExist(grades, group.getCode())) {
-            Grade grade = new Grade(student, group, value);
-            insertGrade(grades, grade);
-        }
-    }
-
-    private void insertGrade(Grade[] grades, Grade grade) {
-        for (int i = 0; i < grades.length; i++) {
-            if (grades[i] == null) {
-                grades[i] = grade;
-                break;
-            }
-        }
-    }
-
-    private boolean doesGradeExist(Grade[] grades, String groupCode) {
-        for (int i = 0; i < grades.length; i++) {
-            if (grades[i] != null && grades[i].getGroup().equals(groupCode)) {
+    private boolean doesGradeExist(Grade grade) {
+        int studentIndex = grade.getStudent().getIndex();
+        String groupCode = grade.getGroup().getCode();
+        for (int i = 0; i < gradeCounter; i++) {
+            if (grades[i].getGroup().getCode().equals(groupCode) &&
+                    grades[i].getStudent().getIndex() == studentIndex) {
                 return true;
             }
         }
@@ -100,8 +71,8 @@ public class University {
     }
 
     public Student findStudent(int index) {
-        for (int i = 0; i < students.length; i++) {
-            if (students[i] != null && students[i].getIndex() == index) {
+        for (int i = 0; i < studentCounter; i++) {
+            if (students[i].getIndex() == index) {
                 return students[i];
             }
         }
@@ -109,8 +80,8 @@ public class University {
     }
 
     public Lecturer findLecturer(int id) {
-        for (int i = 0; i < lecturers.length; i++) {
-            if (lecturers[i] != null && lecturers[i].getId() == id) {
+        for (int i = 0; i < lecturerCounter; i++) {
+            if (lecturers[i].getId() == id) {
                 return lecturers[i];
             }
         }
@@ -118,22 +89,60 @@ public class University {
     }
 
     public Group findGroup(String code) {
-        for (int i = 0; i < groups.length; i++) {
-            if (groups[i] != null && groups[i].getCode().equals(code)) {
+        for (int i = 0; i < groupCounter; i++) {
+            if (groups[i].getCode().equals(code)) {
                 return groups[i];
             }
         }
         return null;
     }
 
-    public Grade findGradeForStudent(Student student, String groupCode) {
-        Grade[] grades = student.getGrades();
-        for (int i = 0; i < grades.length; i++) {
-            if (grades[i] != null && grades[i].getGroup().getCode().equals(groupCode)) {
+    public Grade findGradeForStudent(Student student, Group group) {
+        for (int i = 0; i < gradeCounter; i++) {
+            if (grades[i].getStudent().getIndex() == student.getIndex() &&
+                    grades[i].getGroup().getCode().equals(group.getCode())) {
                 return grades[i];
             }
         }
         return null;
+    }
+
+    public String getGradesForStudentReport(Student student) {
+        cleanStringBuilder();
+        for (int i = 0; i < gradeCounter; i++) {
+            if (grades[i] == null) {
+                break;
+            } else if(grades[i].getStudent().getIndex() == student.getIndex()) {
+                stringBuilder.append(grades[i].getInfo()).append("\n");
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    public String getGradesForGroupReport(Group group) {
+        cleanStringBuilder();
+        for (int i = 0; i < gradeCounter; i++) {
+            if (grades[i] == null) {
+                break;
+            } else if(grades[i].getGroup().getCode().equals(group.getCode())) {
+                stringBuilder.append(String.format(Locale.ENGLISH, "%s %s: %.1f%n",
+                        grades[i].getStudent().getFirstName(), grades[i].getStudent().getLastName(),
+                        grades[i].getValue()));
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    private void cleanStringBuilder() {
+        stringBuilder.delete(0, stringBuilder.toString().length());
+    }
+
+    public String getStudentsReport() {
+        cleanStringBuilder();
+        for (int i = 0; i < studentCounter; i++) {
+            stringBuilder.append(students[i].getInfo()).append("\n");
+        }
+        return stringBuilder.toString();
     }
 
     public Student[] getStudents() {
@@ -146,5 +155,9 @@ public class University {
 
     public Group[] getGroups() {
         return groups;
+    }
+
+    public Grade[] getGrades() {
+        return grades;
     }
 }

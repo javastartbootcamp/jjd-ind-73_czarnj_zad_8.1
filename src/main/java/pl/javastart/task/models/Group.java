@@ -5,6 +5,7 @@ public class Group {
     private String name;
     private Lecturer lecturer;
     private Student[] students;
+    private int studentCounter;
 
     public Group(String code, String name, Lecturer lecturer, int maxStudentsAmount) {
         this.code = code;
@@ -14,19 +15,22 @@ public class Group {
     }
 
     public void addStudent(Student student) {
-        for (int i = 0; i < students.length; i++) {
-            if (students[i] == null) {
-                students[i] = student;
-                break;
-            }
+        if (studentCounter < students.length) {
+            students[studentCounter++] = student;
         }
     }
 
-    public Student findStudent(int index) {
-        for (int i = 0; i < students.length; i++) {
-            if (students[i] == null) {
-                return null;
+    public boolean containStudent(Student student) {
+        for (int i = 0; i < studentCounter; i++) {
+            if (students[i].getIndex() == student.getIndex()) {
+                return true;
             }
+        }
+        return false;
+    }
+
+    public Student findStudent(int index) {
+        for (int i = 0; i < studentCounter; i++) {
             if (students[i].getIndex() == index) {
                 return students[i];
             }
@@ -41,10 +45,8 @@ public class Group {
 
     public String getStudentsInfo() {
         StringBuilder studentsInfo = new StringBuilder();
-        for (int i = 0; i < students.length; i++) {
-            if (students[i] != null) {
-                studentsInfo.append(students[i].getInfo() + "\n");
-            }
+        for (int i = 0; i < studentCounter; i++) {
+            studentsInfo.append(students[i].getInfo() + "\n");
         }
         return studentsInfo.toString();
     }
