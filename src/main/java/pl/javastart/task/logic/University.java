@@ -112,7 +112,7 @@ public class University {
         for (int i = 0; i < gradeCounter; i++) {
             if (grades[i] == null) {
                 break;
-            } else if(grades[i].getStudent().getIndex() == student.getIndex()) {
+            } else if (grades[i].getStudent().getIndex() == student.getIndex()) {
                 stringBuilder.append(grades[i].getInfo()).append("\n");
             }
         }
@@ -124,7 +124,7 @@ public class University {
         for (int i = 0; i < gradeCounter; i++) {
             if (grades[i] == null) {
                 break;
-            } else if(grades[i].getGroup().getCode().equals(group.getCode())) {
+            } else if (grades[i].getGroup().getCode().equals(group.getCode())) {
                 stringBuilder.append(String.format(Locale.ENGLISH, "%s %s: %.1f%n",
                         grades[i].getStudent().getFirstName(), grades[i].getStudent().getLastName(),
                         grades[i].getValue()));
